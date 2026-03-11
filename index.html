@@ -5,103 +5,293 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestionnaire de Favoris</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         :root {
             --bg-primary: #f5f7fa;
             --bg-secondary: #ffffff;
-            --bg-tertiary: #e8ecf1;
-            --text-primary: #2c3e50;
-            --text-secondary: #546e7a;
-            --accent-color: #3498db;
-            --border-color: #cbd5e0;
+            --bg-hover: #f0f2f5;
+            --text-primary: #1a202c;
+            --text-secondary: #718096;
+            --border: #e2e8f0;
+            --accent: #4299e1;
+            --accent-hover: #3182ce;
+            --danger: #f56565;
+            --danger-hover: #e53e3e;
+            --success: #48bb78;
+            --shadow: rgba(0, 0, 0, 0.1);
         }
 
-        [data-theme="dark"] {
-            --bg-primary: #1a1f2e;
-            --bg-secondary: #252b3f;
-            --bg-tertiary: #2d3548;
-            --text-primary: #e4e6eb;
-            --text-secondary: #b0b3b8;
-            --accent-color: #4a90e2;
-            --border-color: #3a4152;
+        .dark-mode {
+            --bg-primary: #1a202c;
+            --bg-secondary: #2d3748;
+            --bg-hover: #374151;
+            --text-primary: #f7fafc;
+            --text-secondary: #cbd5e0;
+            --border: #4a5568;
+            --shadow: rgba(0, 0, 0, 0.3);
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--bg-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-primary);
             color: var(--text-primary);
-            padding-bottom: 80px;
+            padding: 20px;
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+            padding-bottom: 100px;
         }
 
         .header {
-            background: var(--bg-secondary);
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            text-align: center;
+            margin-bottom: 40px;
         }
 
         .header h1 {
-            text-align: center;
-            color: var(--accent-color);
+            font-size: 2.5rem;
             margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--accent), var(--success));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        .search-box {
-            max-width: 900px;
-            margin: 0 auto;
+        .google-search-container {
+            max-width: 700px;
+            margin: 0 auto 20px;
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px var(--shadow);
         }
 
-        .search-container {
+        .google-search-form {
             display: flex;
             gap: 10px;
             align-items: center;
         }
 
-        .search-box input {
+        .google-search-input {
             flex: 1;
-            padding: 12px;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
+            padding: 12px 20px;
+            border: 2px solid var(--border);
+            border-radius: 50px;
             font-size: 1rem;
             background: var(--bg-primary);
             color: var(--text-primary);
+            transition: all 0.3s;
+        }
+
+        .google-search-input:focus {
+            outline: none;
+            border-color: #4285f4;
+            box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
+        }
+
+        .google-search-btn {
+            padding: 12px 28px;
+            background: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .google-search-btn:hover {
+            background: #3367d6;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+        }
+
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 50px 14px 20px;
+            border: 2px solid var(--border);
+            border-radius: 50px;
+            font-size: 1rem;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 20px;
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+        }
+
+        .search-results-info {
+            text-align: center;
+            margin-top: 10px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, var(--accent), var(--success));
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 500;
+        }
+
+        .section.filtered-out,
+        .subsection.filtered-out {
+            display: none;
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 0 20px;
         }
 
         .section {
             background: var(--bg-secondary);
             border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 25px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px var(--shadow);
+            transition: all 0.3s;
         }
 
         .section-header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
             margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
         }
 
         .section-title {
             font-size: 1.5rem;
             font-weight: 600;
+            flex: 1;
         }
 
         .section-controls {
             display: flex;
-            gap: 10px;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .controls-visible .section-controls,
+        .controls-visible .subsection-controls,
+        .controls-visible .bookmark-controls {
+            opacity: 1;
+        }
+
+        .subsections-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .subsection {
+            background: var(--bg-hover);
+            border-radius: 8px;
+            padding: 16px;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        .subsection:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .subsection-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .subsection-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .subsection-controls {
+            display: flex;
+            gap: 6px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .bookmarks-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .bookmark-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .bookmark-item:hover {
+            background: var(--bg-hover);
+        }
+
+        .bookmark-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-primary);
+            text-decoration: none;
+            flex: 1;
+        }
+
+        .bookmark-link:hover {
+            color: var(--accent);
+        }
+
+        .bookmark-icon {
+            font-size: 1.2rem;
+        }
+
+        .bookmark-controls {
+            display: flex;
+            gap: 6px;
+            opacity: 0;
+            transition: opacity 0.3s;
         }
 
         .btn {
@@ -112,962 +302,661 @@
             font-size: 0.9rem;
             font-weight: 500;
             transition: all 0.2s;
-        }
-
-        .btn:hover {
-            opacity: 0.8;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .btn-primary {
-            background: var(--accent-color);
+            background: var(--accent);
             color: white;
         }
 
-        .btn-secondary {
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
         }
 
         .btn-danger {
-            background: #e74c3c;
+            background: var(--danger);
             color: white;
         }
 
-        .subsections-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 20px;
+        .btn-danger:hover {
+            background: var(--danger-hover);
         }
 
-        .subsection {
-            background: var(--bg-tertiary);
-            border-radius: 8px;
-            padding: 15px;
-            border: 2px solid var(--border-color);
+        .btn-small {
+            padding: 4px 10px;
+            font-size: 0.8rem;
         }
 
-        .subsection-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--border-color);
+        .btn-icon {
+            padding: 6px 10px;
         }
 
-        .subsection-title {
-            font-size: 1.1rem;
-            font-weight: 500;
-        }
-
-        .favorites-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .favorite {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 12px;
-            background: var(--bg-secondary);
-            border-radius: 6px;
-            cursor: pointer;
-            border: 1px solid var(--border-color);
-            transition: all 0.2s;
-        }
-
-        .favorite:hover {
-            background: var(--bg-primary);
-            transform: translateX(4px);
-        }
-
-        .footer {
+        .footer-controls {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
             background: var(--bg-secondary);
-            border-top: 2px solid var(--border-color);
-            padding: 15px;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-            z-index: 1000;
-        }
-
-        .footer-buttons {
+            border-top: 2px solid var(--border);
+            padding: 16px 20px;
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 12px;
             flex-wrap: wrap;
+            box-shadow: 0 -2px 12px var(--shadow);
+            z-index: 100;
         }
 
         .modal {
             display: none;
             position: fixed;
-            z-index: 2000;
-            left: 0;
             top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
         }
 
         .modal.active {
             display: flex;
-            justify-content: center;
-            align-items: center;
         }
 
         .modal-content {
             background: var(--bg-secondary);
-            padding: 30px;
+            padding: 24px;
             border-radius: 12px;
-            width: 90%;
             max-width: 500px;
+            width: 90%;
+            box-shadow: 0 4px 24px var(--shadow);
         }
 
-        .modal-content h2 {
+        .modal-header {
+            font-size: 1.3rem;
+            font-weight: 600;
             margin-bottom: 20px;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             font-weight: 500;
+            color: var(--text-secondary);
         }
 
         .form-group input {
             width: 100%;
-            padding: 10px;
-            border: 2px solid var(--border-color);
+            padding: 10px 14px;
+            border: 1px solid var(--border);
             border-radius: 6px;
             font-size: 1rem;
             background: var(--bg-primary);
             color: var(--text-primary);
         }
 
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
         }
 
-        .empty-message {
-            padding: 20px;
-            text-align: center;
-            color: var(--text-secondary);
-            font-style: italic;
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
         }
 
         .dragging {
             opacity: 0.5;
-            cursor: move;
         }
 
         .drag-over {
-            border: 2px dashed var(--accent-color);
-            background: var(--bg-primary);
+            border: 2px dashed var(--accent);
         }
 
-        .draggable {
-            cursor: move;
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
         }
-
-        .draggable:hover {
-            opacity: 0.9;
-        }
-
-        .hidden { display: none !important; }
 
         @media (max-width: 768px) {
             .subsections-grid {
                 grid-template-columns: 1fr;
             }
-            .search-container {
-                flex-direction: column;
+            
+            .footer-controls {
+                padding: 12px 10px;
+                gap: 8px;
+            }
+
+            .btn {
+                padding: 6px 12px;
+                font-size: 0.85rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>📚 Gestionnaire de Favoris</h1>
-        <div style="text-align: center; margin-bottom: 15px;">
-            <label for="userSelect" style="margin-right: 10px; font-weight: 500;">👤 Utilisateur :</label>
-            <select id="userSelect" onchange="switchUser()" style="padding: 8px 12px; border-radius: 6px; border: 2px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); font-size: 1rem; min-width: 200px;">
-            </select>
-            <button class="btn btn-primary" onclick="openAddUserModal()" id="addUserBtn" style="margin-left: 10px; display: none;">➕ Nouvel utilisateur</button>
-        </div>
-        <div class="search-box">
+    <div class="container">
+        <div class="header">
+            <h1>📚 Mes Favoris</h1>
+            
+            <!-- Recherche Google -->
+            <div class="google-search-container">
+                <form class="google-search-form" id="googleSearchForm" action="https://www.google.ca/search" method="get" target="_blank">
+                    <input type="text" name="q" class="google-search-input" placeholder="Rechercher sur Google.ca..." autocomplete="off">
+                    <button type="submit" class="google-search-btn">
+                        <span>🔍</span>
+                        <span>Rechercher</span>
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Recherche dans les favoris -->
             <div class="search-container">
-                <input type="text" id="searchInput" placeholder="🔍 Rechercher dans les favoris..." oninput="onSearch()">
-                <input type="text" id="googleSearch" placeholder="🌐 Recherche Google..." onkeypress="if(event.key==='Enter') performGoogleSearch()">
-                <button class="btn btn-primary" onclick="performGoogleSearch()">Rechercher</button>
+                <div class="search-box">
+                    <input type="text" class="search-input" id="searchInput" placeholder="🔍 Rechercher dans vos favoris...">
+                    <span class="search-icon">🔍</span>
+                </div>
+                <div class="search-results-info" id="searchResultsInfo"></div>
             </div>
         </div>
+        <div id="sections-container"></div>
     </div>
 
-    <div class="container" id="mainContainer"></div>
-
-    <div class="footer">
-        <div class="footer-buttons" id="footerButtons"></div>
+    <div class="footer-controls">
+        <button class="btn btn-primary" id="toggleControlsBtn">👁️ Afficher les contrôles</button>
+        <button class="btn btn-primary" id="addSectionBtn">➕ Ajouter Section</button>
+        <button class="btn btn-primary" id="darkModeBtn">🌙 Mode Sombre</button>
+        <button class="btn btn-primary" id="exportBtn">💾 Exporter</button>
+        <button class="btn btn-primary" id="importBtn">📁 Importer</button>
+        <input type="file" id="importInput" accept=".json" style="display: none;">
     </div>
 
-    <!-- Modales -->
+    <!-- Modal pour ajouter/modifier section -->
     <div id="sectionModal" class="modal">
         <div class="modal-content">
-            <h2 id="sectionModalTitle">Nouvelle Section</h2>
+            <div class="modal-header">Ajouter une section</div>
             <div class="form-group">
-                <label>Nom de la section *</label>
-                <input type="text" id="sectionName">
+                <label>Nom de la section</label>
+                <input type="text" id="sectionNameInput" placeholder="Ex: Travail, Loisirs...">
             </div>
-            <div class="modal-buttons">
-                <button class="btn btn-secondary" onclick="closeModal('sectionModal')">Annuler</button>
-                <button class="btn btn-primary" onclick="saveSection()">Enregistrer</button>
+            <div class="modal-actions">
+                <button class="btn" id="cancelSectionBtn">Annuler</button>
+                <button class="btn btn-primary" id="saveSectionBtn">Enregistrer</button>
             </div>
         </div>
     </div>
 
+    <!-- Modal pour ajouter/modifier sous-section -->
     <div id="subsectionModal" class="modal">
         <div class="modal-content">
-            <h2 id="subsectionModalTitle">Nouvelle Sous-section</h2>
+            <div class="modal-header">Ajouter une sous-section</div>
             <div class="form-group">
-                <label>Nom de la sous-section *</label>
-                <input type="text" id="subsectionName">
+                <label>Nom de la sous-section</label>
+                <input type="text" id="subsectionNameInput" placeholder="Ex: Outils, Documentation...">
             </div>
-            <div class="modal-buttons">
-                <button class="btn btn-secondary" onclick="closeModal('subsectionModal')">Annuler</button>
-                <button class="btn btn-primary" onclick="saveSubsection()">Enregistrer</button>
+            <div class="modal-actions">
+                <button class="btn" id="cancelSubsectionBtn">Annuler</button>
+                <button class="btn btn-primary" id="saveSubsectionBtn">Enregistrer</button>
             </div>
         </div>
     </div>
 
-    <div id="favoriteModal" class="modal">
+    <!-- Modal pour ajouter/modifier favori -->
+    <div id="bookmarkModal" class="modal">
         <div class="modal-content">
-            <h2 id="favoriteModalTitle">Nouveau Favori</h2>
+            <div class="modal-header">Ajouter un favori</div>
             <div class="form-group">
-                <label>Nom du favori *</label>
-                <input type="text" id="favoriteName">
+                <label>Nom</label>
+                <input type="text" id="bookmarkNameInput" placeholder="Ex: Google">
             </div>
             <div class="form-group">
-                <label>URL *</label>
-                <input type="text" id="favoriteUrl" placeholder="https://example.com">
+                <label>URL</label>
+                <input type="text" id="bookmarkUrlInput" placeholder="https://example.com">
             </div>
-            <div class="modal-buttons">
-                <button class="btn btn-secondary" onclick="closeModal('favoriteModal')">Annuler</button>
-                <button class="btn btn-primary" onclick="saveFavorite()">Enregistrer</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="userModal" class="modal">
-        <div class="modal-content">
-            <h2>Nouvel Utilisateur</h2>
-            <div class="form-group">
-                <label>Nom de l'utilisateur *</label>
-                <input type="text" id="userName" placeholder="Ex: Jean">
-            </div>
-            <div class="modal-buttons">
-                <button class="btn btn-secondary" onclick="closeModal('userModal')">Annuler</button>
-                <button class="btn btn-primary" onclick="saveUser()">Créer</button>
+            <div class="modal-actions">
+                <button class="btn" id="cancelBookmarkBtn">Annuler</button>
+                <button class="btn btn-primary" id="saveBookmarkBtn">Enregistrer</button>
             </div>
         </div>
     </div>
 
     <script>
-        let allData = {
-            users: {
-                'Défaut': {
-                    sections: [],
-                    settings: { darkMode: false }
-                }
-            },
-            currentUser: 'Défaut'
-        };
-        let data = { sections: [], settings: { darkMode: false } };
-        let editMode = false;
-        let currentEdit = null;
+        let data = {sections: []};
+        let controlsVisible = false;
+        let currentEditSection = null;
+        let currentEditSubsection = null;
+        let currentEditBookmark = null;
         let searchTerm = '';
 
-        // Initialisation
-        async function init() {
-            await loadData();
-            updateUserSelect();
-            updateTheme();
-            renderFooter();
+        function loadData() {
+            const saved = localStorage.getItem('bookmarksData');
+            if (saved) data = JSON.parse(saved);
+            const darkMode = localStorage.getItem('darkMode') === 'true';
+            if (darkMode) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('darkModeBtn').textContent = '☀️ Mode Clair';
+            }
             render();
         }
 
-        // API Serveur
-        async function loadData() {
-            try {
-                const response = await fetch('/api/data');
-                const loadedData = await response.json();
-                
-                // Vérifier si c'est l'ancien format ou le nouveau
-                if (loadedData.users) {
-                    allData = loadedData;
-                } else {
-                    // Convertir l'ancien format
-                    allData = {
-                        users: {
-                            'Défaut': loadedData
-                        },
-                        currentUser: 'Défaut'
-                    };
-                }
-                
-                // Charger les données de l'utilisateur actuel
-                data = allData.users[allData.currentUser];
-            } catch (e) {
-                console.error('Erreur chargement:', e);
-            }
+        function saveData() {
+            localStorage.setItem('bookmarksData', JSON.stringify(data));
         }
 
-        async function saveData() {
-            try {
-                // Sauvegarder les données de l'utilisateur actuel
-                allData.users[allData.currentUser] = data;
-                
-                await fetch('/api/data', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(allData)
-                });
-            } catch (e) {
-                console.error('Erreur sauvegarde:', e);
-            }
+        function highlightText(text, search) {
+            if (!search) return text;
+            const regex = new RegExp(`(${search})`, 'gi');
+            return text.replace(regex, '<span class="highlight">$1</span>');
         }
 
-        // Thème
-        function toggleDarkMode() {
-            data.settings.darkMode = !data.settings.darkMode;
-            updateTheme();
-            saveData();
-            renderFooter();
-        }
-
-        function updateTheme() {
-            if (data.settings.darkMode) {
-                document.body.setAttribute('data-theme', 'dark');
-            } else {
-                document.body.removeAttribute('data-theme');
-            }
-        }
-
-        // Mode édition
-        function toggleEditMode() {
-            editMode = !editMode;
-            updateUserSelect();
-            renderFooter();
-            render();
-        }
-
-        // Gestion des utilisateurs
-        function updateUserSelect() {
-            const select = document.getElementById('userSelect');
-            const addBtn = document.getElementById('addUserBtn');
+        function filterData() {
+            const term = searchTerm.toLowerCase();
+            let totalBookmarks = 0;
+            let visibleBookmarks = 0;
             
-            // Mettre à jour le dropdown
-            select.innerHTML = '';
-            Object.keys(allData.users).forEach(userName => {
-                const option = document.createElement('option');
-                option.value = userName;
-                option.textContent = userName;
-                option.selected = userName === allData.currentUser;
-                select.appendChild(option);
+            data.sections.forEach(section => {
+                section.subsections.forEach(subsection => {
+                    totalBookmarks += subsection.bookmarks.length;
+                });
             });
             
-            // Afficher/masquer le bouton d'ajout selon le mode
-            if (editMode) {
-                addBtn.style.display = 'inline-block';
-            } else {
-                addBtn.style.display = 'none';
-            }
-        }
-
-        function switchUser() {
-            const select = document.getElementById('userSelect');
-            const newUser = select.value;
-            
-            if (newUser !== allData.currentUser) {
-                allData.currentUser = newUser;
-                data = allData.users[newUser];
-                updateTheme();
-                render();
-                saveData();
-            }
-        }
-
-        function openAddUserModal() {
-            document.getElementById('userName').value = '';
-            openModal('userModal');
-        }
-
-        async function saveUser() {
-            const name = document.getElementById('userName').value.trim();
-            
-            if (!name) {
-                alert('Veuillez entrer un nom d\'utilisateur');
-                return;
+            if (!term) {
+                document.getElementById('searchResultsInfo').textContent = '';
+                return { filter: false, visibleBookmarks: totalBookmarks };
             }
             
-            if (allData.users[name]) {
-                alert('Cet utilisateur existe déjà');
-                return;
-            }
-            
-            // Créer le nouvel utilisateur
-            allData.users[name] = {
-                sections: [],
-                settings: { darkMode: false }
-            };
-            
-            // Basculer vers le nouvel utilisateur
-            allData.currentUser = name;
-            data = allData.users[name];
-            
-            await saveData();
-            updateUserSelect();
-            updateTheme();
-            render();
-            closeModal('userModal');
-        }
-
-        // Rendu
-        function render() {
-            const container = document.getElementById('mainContainer');
-            
-            let sections = data.sections;
-            
-            // Filtrer par recherche
-            if (searchTerm) {
-                sections = data.sections.map(section => {
-                    const filteredSubsections = section.subsections.filter(sub => {
-                        return sub.favorites.some(fav => 
-                            fav.name.toLowerCase().includes(searchTerm) ||
-                            fav.url.toLowerCase().includes(searchTerm)
-                        );
+            const filteredSections = data.sections.map(section => {
+                const filteredSubsections = section.subsections.map(subsection => {
+                    const filteredBookmarks = subsection.bookmarks.filter(bookmark => {
+                        return bookmark.name.toLowerCase().includes(term) || 
+                               bookmark.url.toLowerCase().includes(term);
                     });
                     
-                    if (filteredSubsections.length > 0) {
-                        return { ...section, subsections: filteredSubsections };
-                    }
-                    return null;
-                }).filter(s => s !== null);
-            }
+                    visibleBookmarks += filteredBookmarks.length;
+                    
+                    return {
+                        ...subsection,
+                        bookmarks: filteredBookmarks,
+                        visible: filteredBookmarks.length > 0 || 
+                                subsection.name.toLowerCase().includes(term)
+                    };
+                });
+                
+                return {
+                    ...section,
+                    subsections: filteredSubsections,
+                    visible: filteredSubsections.some(ss => ss.visible) || 
+                            section.name.toLowerCase().includes(term)
+                };
+            });
+            
+            const resultsText = visibleBookmarks === 0 
+                ? 'Aucun résultat trouvé' 
+                : `${visibleBookmarks} résultat${visibleBookmarks > 1 ? 's' : ''} trouvé${visibleBookmarks > 1 ? 's' : ''}`;
+            
+            document.getElementById('searchResultsInfo').textContent = resultsText;
+            
+            return { filter: true, filteredSections, visibleBookmarks };
+        }
 
-            if (sections.length === 0) {
-                if (searchTerm) {
-                    container.innerHTML = '<div class="empty-message">Aucun résultat trouvé.</div>';
-                } else if (editMode) {
-                    container.innerHTML = '<div class="empty-message">Aucune section. Cliquez sur "➕ Ajouter Section" ci-dessous.</div>';
-                } else {
-                    container.innerHTML = '<div class="empty-message">Aucune donnée. Activez le mode édition pour commencer.</div>';
-                }
+        function render() {
+            const container = document.getElementById('sections-container');
+            
+            if (data.sections.length === 0) {
+                container.innerHTML = '<div class="empty-state"><h2>Aucune section</h2><p>Cliquez sur "Ajouter Section" pour commencer</p></div>';
                 return;
             }
-
-            container.innerHTML = sections.map((section, idx) => renderSection(section, idx)).join('');
-        }
-
-        function renderSection(section, sIdx) {
-            const realIdx = data.sections.findIndex(s => s.name === section.name);
             
-            let controls = '';
-            if (editMode) {
-                controls = `
-                    <div class="section-controls">
-                        <button class="btn btn-primary" onclick="openAddSubsectionModal(${realIdx})">➕ Sous-section</button>
-                        <button class="btn btn-secondary" onclick="openEditSectionModal(${realIdx})">✏️</button>
-                        <button class="btn btn-danger" onclick="deleteSection(${realIdx})">🗑️</button>
-                    </div>
-                `;
-            }
-
-            let subsectionsHtml = '';
-            if (section.subsections && section.subsections.length > 0) {
-                subsectionsHtml = section.subsections.map((sub, ssIdx) => renderSubsection(sub, realIdx, ssIdx)).join('');
-            } else if (editMode) {
-                subsectionsHtml = '<div class="empty-message">Aucune sous-section. Cliquez sur "➕ Sous-section" ci-dessus.</div>';
-            }
-
-            const draggable = editMode ? 'draggable="true" class="draggable"' : '';
-            const dragEvents = editMode ? `
-                ondragstart="handleDragStart(event, 'section', ${realIdx})"
-                ondragend="handleDragEnd(event)"
-                ondragover="handleDragOver(event)"
-                ondrop="handleDrop(event, 'section', ${realIdx})"
-            ` : '';
-
-            return `
-                <div class="section" ${draggable} ${dragEvents} data-type="section" data-index="${realIdx}">
-                    <div class="section-header">
-                        <h2 class="section-title">${section.name}</h2>
-                        ${controls}
-                    </div>
-                    <div class="subsections-grid" 
-                         ondragover="handleSubsectionGridDragOver(event, ${realIdx})"
-                         ondrop="handleSubsectionGridDrop(event, ${realIdx})">
-                        ${subsectionsHtml}
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderSubsection(subsection, sIdx, ssIdx) {
-            let controls = '';
-            if (editMode) {
-                controls = `
-                    <div class="section-controls">
-                        <button class="btn btn-primary" onclick="openAddFavoriteModal(${sIdx},${ssIdx})">➕</button>
-                        <button class="btn btn-secondary" onclick="openEditSubsectionModal(${sIdx},${ssIdx})">✏️</button>
-                        <button class="btn btn-danger" onclick="deleteSubsection(${sIdx},${ssIdx})">🗑️</button>
-                    </div>
-                `;
-            }
-
-            let favoritesHtml = '';
-            if (subsection.favorites && subsection.favorites.length > 0) {
-                let favoritesToShow = subsection.favorites;
-                if (searchTerm && !editMode) {
-                    favoritesToShow = subsection.favorites.filter(fav =>
-                        fav.name.toLowerCase().includes(searchTerm) ||
-                        fav.url.toLowerCase().includes(searchTerm)
-                    );
-                }
+            const filterResult = filterData();
+            const sectionsToRender = filterResult.filter ? filterResult.filteredSections : data.sections;
+            
+            container.innerHTML = sectionsToRender.map((section, sIdx) => {
+                const sectionVisible = !filterResult.filter || section.visible;
+                const sectionClass = sectionVisible ? 'section' : 'section filtered-out';
                 
-                if (favoritesToShow.length > 0) {
-                    favoritesHtml = favoritesToShow.map((fav, fIdx) => {
-                        const realIdx = subsection.favorites.indexOf(fav);
-                        return renderFavorite(fav, sIdx, ssIdx, realIdx);
-                    }).join('');
-                } else if (editMode) {
-                    favoritesHtml = '<div class="empty-message">Aucun favori. Cliquez sur "➕" ci-dessus.</div>';
-                }
-            } else if (editMode) {
-                favoritesHtml = '<div class="empty-message">Aucun favori. Cliquez sur "➕" ci-dessus.</div>';
-            }
-
-            const draggable = editMode ? 'draggable="true" class="draggable"' : '';
-            const dragEvents = editMode ? `
-                ondragstart="handleDragStart(event, 'subsection', ${sIdx}, ${ssIdx})"
-                ondragend="handleDragEnd(event)"
-                ondragover="handleDragOver(event)"
-                ondrop="handleDrop(event, 'subsection', ${sIdx}, ${ssIdx})"
-            ` : '';
-
-            return `
-                <div class="subsection" ${draggable} ${dragEvents} data-type="subsection" data-section="${sIdx}" data-index="${ssIdx}">
-                    <div class="subsection-header">
-                        <h3 class="subsection-title">${subsection.name}</h3>
-                        ${controls}
+                return `
+                <div class="${sectionClass}" draggable="true" data-section-idx="${sIdx}">
+                    <div class="section-header">
+                        <div class="section-title">${highlightText(section.name, searchTerm)}</div>
+                        <div class="section-controls">
+                            <button class="btn btn-small btn-primary" onclick="addSubsection(${sIdx})">➕ Sous-section</button>
+                            <button class="btn btn-small btn-icon btn-primary" onclick="editSection(${sIdx})">✏️</button>
+                            <button class="btn btn-small btn-icon btn-danger" onclick="deleteSection(${sIdx})">🗑️</button>
+                        </div>
                     </div>
-                    <div class="favorites-list">${favoritesHtml}</div>
-                </div>
-            `;
-        }
-
-        function renderFavorite(fav, sIdx, ssIdx, fIdx) {
-            let controls = '';
-            if (editMode) {
-                controls = `
-                    <div class="section-controls">
-                        <button class="btn btn-secondary" onclick="openEditFavoriteModal(${sIdx},${ssIdx},${fIdx});event.stopPropagation()">✏️</button>
-                        <button class="btn btn-danger" onclick="deleteFavorite(${sIdx},${ssIdx},${fIdx});event.stopPropagation()">🗑️</button>
+                    <div class="subsections-grid">
+                        ${section.subsections.map((subsection, ssIdx) => {
+                            const subsectionVisible = !filterResult.filter || subsection.visible;
+                            const subsectionClass = subsectionVisible ? 'subsection' : 'subsection filtered-out';
+                            
+                            return `
+                            <div class="${subsectionClass}" draggable="true" data-section-idx="${sIdx}" data-subsection-idx="${ssIdx}">
+                                <div class="subsection-header">
+                                    <div class="subsection-title">${highlightText(subsection.name, searchTerm)}</div>
+                                    <div class="subsection-controls">
+                                        <button class="btn btn-small btn-icon btn-primary" onclick="addBookmark(${sIdx}, ${ssIdx})">➕</button>
+                                        <button class="btn btn-small btn-icon btn-primary" onclick="editSubsection(${sIdx}, ${ssIdx})">✏️</button>
+                                        <button class="btn btn-small btn-icon btn-danger" onclick="deleteSubsection(${sIdx}, ${ssIdx})">🗑️</button>
+                                    </div>
+                                </div>
+                                <div class="bookmarks-list">
+                                    ${subsection.bookmarks.map((bookmark, bIdx) => `
+                                        <div class="bookmark-item">
+                                            <a href="${bookmark.url}" class="bookmark-link" target="_blank">
+                                                <span class="bookmark-icon">🔖</span>
+                                                <span>${highlightText(bookmark.name, searchTerm)}</span>
+                                            </a>
+                                            <div class="bookmark-controls">
+                                                <button class="btn btn-small btn-icon btn-primary" onclick="editBookmark(${sIdx}, ${ssIdx}, ${bIdx})">✏️</button>
+                                                <button class="btn btn-small btn-icon btn-danger" onclick="deleteBookmark(${sIdx}, ${ssIdx}, ${bIdx})">🗑️</button>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `;}).join('')}
                     </div>
-                `;
-            }
-
-            const draggable = editMode ? 'draggable="true" class="draggable"' : '';
-            const dragEvents = editMode ? `
-                ondragstart="handleDragStart(event, 'favorite', ${sIdx}, ${ssIdx}, ${fIdx})"
-                ondragend="handleDragEnd(event)"
-                ondragover="handleDragOver(event)"
-                ondrop="handleDrop(event, 'favorite', ${sIdx}, ${ssIdx}, ${fIdx})"
-            ` : '';
-
-            return `
-                <div class="favorite" ${draggable} ${dragEvents} data-type="favorite" data-section="${sIdx}" data-subsection="${ssIdx}" data-index="${fIdx}" onclick="openFavorite('${fav.url}')">
-                    <span>🔖 ${fav.name}</span>
-                    ${controls}
                 </div>
-            `;
+            `;}).join('');
+            
+            if (controlsVisible) document.body.classList.add('controls-visible');
+            setupDragAndDrop();
         }
 
-        function renderFooter() {
-            const container = document.getElementById('footerButtons');
-            if (editMode) {
-                container.innerHTML = `
-                    <button class="btn btn-secondary" onclick="toggleEditMode()">👁️ Mode Lecture</button>
-                    <button class="btn btn-primary" onclick="openAddSectionModal()">➕ Ajouter Section</button>
-                    <button class="btn btn-secondary" onclick="toggleDarkMode()">🌓 ${data.settings.darkMode ? 'Clair' : 'Sombre'}</button>
-                    <button class="btn btn-primary" onclick="exportData()">💾 Exporter</button>
-                    <button class="btn btn-primary" onclick="importData()">📂 Importer</button>
-                `;
-            } else {
-                container.innerHTML = `
-                    <button class="btn btn-primary" onclick="toggleEditMode()">✏️ Mode Édition</button>
-                    <button class="btn btn-secondary" onclick="toggleDarkMode()">🌓 ${data.settings.darkMode ? 'Clair' : 'Sombre'}</button>
-                `;
+        function setupDragAndDrop() {
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                section.addEventListener('dragstart', handleSectionDragStart);
+                section.addEventListener('dragover', handleSectionDragOver);
+                section.addEventListener('drop', handleSectionDrop);
+                section.addEventListener('dragend', handleDragEnd);
+            });
+            
+            const subsections = document.querySelectorAll('.subsection');
+            subsections.forEach(subsection => {
+                subsection.addEventListener('dragstart', handleSubsectionDragStart);
+                subsection.addEventListener('dragover', handleSubsectionDragOver);
+                subsection.addEventListener('drop', handleSubsectionDrop);
+                subsection.addEventListener('dragend', handleDragEnd);
+            });
+        }
+
+        let draggedElement = null;
+        let draggedType = null;
+
+        function handleSectionDragStart(e) {
+            draggedElement = this;
+            draggedType = 'section';
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleSectionDragOver(e) {
+            if (draggedType !== 'section') return;
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            this.classList.add('drag-over');
+        }
+
+        function handleSectionDrop(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            if (draggedType !== 'section' || draggedElement === this) return;
+            const fromIdx = parseInt(draggedElement.dataset.sectionIdx);
+            const toIdx = parseInt(this.dataset.sectionIdx);
+            const [removed] = data.sections.splice(fromIdx, 1);
+            data.sections.splice(toIdx, 0, removed);
+            saveData();
+            render();
+        }
+
+        function handleSubsectionDragStart(e) {
+            draggedElement = this;
+            draggedType = 'subsection';
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.stopPropagation();
+        }
+
+        function handleSubsectionDragOver(e) {
+            if (draggedType !== 'subsection') return;
+            e.preventDefault();
+            e.stopPropagation();
+            e.dataTransfer.dropEffect = 'move';
+            this.classList.add('drag-over');
+        }
+
+        function handleSubsectionDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.classList.remove('drag-over');
+            if (draggedType !== 'subsection' || draggedElement === this) return;
+            const fromSectionIdx = parseInt(draggedElement.dataset.sectionIdx);
+            const fromSubsectionIdx = parseInt(draggedElement.dataset.subsectionIdx);
+            const toSectionIdx = parseInt(this.dataset.sectionIdx);
+            const toSubsectionIdx = parseInt(this.dataset.subsectionIdx);
+            if (fromSectionIdx === toSectionIdx) {
+                const [removed] = data.sections[fromSectionIdx].subsections.splice(fromSubsectionIdx, 1);
+                data.sections[toSectionIdx].subsections.splice(toSubsectionIdx, 0, removed);
+            }
+            saveData();
+            render();
+        }
+
+        function handleDragEnd(e) {
+            this.classList.remove('dragging');
+            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+        }
+
+        function addSection() {
+            currentEditSection = null;
+            document.getElementById('sectionNameInput').value = '';
+            document.querySelector('#sectionModal .modal-header').textContent = 'Ajouter une section';
+            document.getElementById('sectionModal').classList.add('active');
+        }
+
+        function editSection(idx) {
+            currentEditSection = idx;
+            document.getElementById('sectionNameInput').value = data.sections[idx].name;
+            document.querySelector('#sectionModal .modal-header').textContent = 'Modifier la section';
+            document.getElementById('sectionModal').classList.add('active');
+        }
+
+        function deleteSection(idx) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cette section et tout son contenu ?')) {
+                data.sections.splice(idx, 1);
+                saveData();
+                render();
             }
         }
 
-        // Sections
-        function openAddSectionModal() {
-            currentEdit = { type: 'section', index: null };
-            document.getElementById('sectionModalTitle').textContent = 'Nouvelle Section';
-            document.getElementById('sectionName').value = '';
-            openModal('sectionModal');
-        }
-
-        function openEditSectionModal(idx) {
-            currentEdit = { type: 'section', index: idx };
-            document.getElementById('sectionModalTitle').textContent = 'Modifier Section';
-            document.getElementById('sectionName').value = data.sections[idx].name;
-            openModal('sectionModal');
-        }
-
-        async function saveSection() {
-            const name = document.getElementById('sectionName').value.trim();
-            if (!name) return;
-
-            if (currentEdit.index !== null) {
-                data.sections[currentEdit.index].name = name;
+        function saveSection() {
+            const name = document.getElementById('sectionNameInput').value.trim();
+            if (!name) return alert('Veuillez entrer un nom');
+            if (currentEditSection !== null) {
+                data.sections[currentEditSection].name = name;
             } else {
                 data.sections.push({ name, subsections: [] });
             }
-
-            await saveData();
-            closeModal('sectionModal');
+            saveData();
             render();
+            document.getElementById('sectionModal').classList.remove('active');
         }
 
-        async function deleteSection(idx) {
-            if (confirm('Supprimer cette section ?')) {
-                data.sections.splice(idx, 1);
-                await saveData();
+        function addSubsection(sectionIdx) {
+            currentEditSection = sectionIdx;
+            currentEditSubsection = null;
+            document.getElementById('subsectionNameInput').value = '';
+            document.querySelector('#subsectionModal .modal-header').textContent = 'Ajouter une sous-section';
+            document.getElementById('subsectionModal').classList.add('active');
+        }
+
+        function editSubsection(sectionIdx, subsectionIdx) {
+            currentEditSection = sectionIdx;
+            currentEditSubsection = subsectionIdx;
+            document.getElementById('subsectionNameInput').value = data.sections[sectionIdx].subsections[subsectionIdx].name;
+            document.querySelector('#subsectionModal .modal-header').textContent = 'Modifier la sous-section';
+            document.getElementById('subsectionModal').classList.add('active');
+        }
+
+        function deleteSubsection(sectionIdx, subsectionIdx) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cette sous-section et tous ses favoris ?')) {
+                data.sections[sectionIdx].subsections.splice(subsectionIdx, 1);
+                saveData();
                 render();
             }
         }
 
-        // Sous-sections
-        function openAddSubsectionModal(sIdx) {
-            currentEdit = { type: 'subsection', sIdx, ssIdx: null };
-            document.getElementById('subsectionModalTitle').textContent = 'Nouvelle Sous-section';
-            document.getElementById('subsectionName').value = '';
-            openModal('subsectionModal');
-        }
-
-        function openEditSubsectionModal(sIdx, ssIdx) {
-            currentEdit = { type: 'subsection', sIdx, ssIdx };
-            document.getElementById('subsectionModalTitle').textContent = 'Modifier Sous-section';
-            document.getElementById('subsectionName').value = data.sections[sIdx].subsections[ssIdx].name;
-            openModal('subsectionModal');
-        }
-
-        async function saveSubsection() {
-            const name = document.getElementById('subsectionName').value.trim();
-            if (!name) return;
-
-            if (currentEdit.ssIdx !== null) {
-                data.sections[currentEdit.sIdx].subsections[currentEdit.ssIdx].name = name;
+        function saveSubsection() {
+            const name = document.getElementById('subsectionNameInput').value.trim();
+            if (!name) return alert('Veuillez entrer un nom');
+            if (currentEditSubsection !== null) {
+                data.sections[currentEditSection].subsections[currentEditSubsection].name = name;
             } else {
-                data.sections[currentEdit.sIdx].subsections.push({ name, favorites: [] });
+                data.sections[currentEditSection].subsections.push({ name, bookmarks: [] });
             }
-
-            await saveData();
-            closeModal('subsectionModal');
+            saveData();
             render();
+            document.getElementById('subsectionModal').classList.remove('active');
         }
 
-        async function deleteSubsection(sIdx, ssIdx) {
-            if (confirm('Supprimer cette sous-section ?')) {
-                data.sections[sIdx].subsections.splice(ssIdx, 1);
-                await saveData();
+        function addBookmark(sectionIdx, subsectionIdx) {
+            currentEditSection = sectionIdx;
+            currentEditSubsection = subsectionIdx;
+            currentEditBookmark = null;
+            document.getElementById('bookmarkNameInput').value = '';
+            document.getElementById('bookmarkUrlInput').value = '';
+            document.querySelector('#bookmarkModal .modal-header').textContent = 'Ajouter un favori';
+            document.getElementById('bookmarkModal').classList.add('active');
+        }
+
+        function editBookmark(sectionIdx, subsectionIdx, bookmarkIdx) {
+            currentEditSection = sectionIdx;
+            currentEditSubsection = subsectionIdx;
+            currentEditBookmark = bookmarkIdx;
+            const bookmark = data.sections[sectionIdx].subsections[subsectionIdx].bookmarks[bookmarkIdx];
+            document.getElementById('bookmarkNameInput').value = bookmark.name;
+            document.getElementById('bookmarkUrlInput').value = bookmark.url;
+            document.querySelector('#bookmarkModal .modal-header').textContent = 'Modifier le favori';
+            document.getElementById('bookmarkModal').classList.add('active');
+        }
+
+        function deleteBookmark(sectionIdx, subsectionIdx, bookmarkIdx) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer ce favori ?')) {
+                data.sections[sectionIdx].subsections[subsectionIdx].bookmarks.splice(bookmarkIdx, 1);
+                saveData();
                 render();
             }
         }
 
-        // Favoris
-        function openAddFavoriteModal(sIdx, ssIdx) {
-            currentEdit = { type: 'favorite', sIdx, ssIdx, fIdx: null };
-            document.getElementById('favoriteModalTitle').textContent = 'Nouveau Favori';
-            document.getElementById('favoriteName').value = '';
-            document.getElementById('favoriteUrl').value = '';
-            openModal('favoriteModal');
-        }
-
-        function openEditFavoriteModal(sIdx, ssIdx, fIdx) {
-            currentEdit = { type: 'favorite', sIdx, ssIdx, fIdx };
-            const fav = data.sections[sIdx].subsections[ssIdx].favorites[fIdx];
-            document.getElementById('favoriteModalTitle').textContent = 'Modifier Favori';
-            document.getElementById('favoriteName').value = fav.name;
-            document.getElementById('favoriteUrl').value = fav.url;
-            openModal('favoriteModal');
-        }
-
-        async function saveFavorite() {
-            const name = document.getElementById('favoriteName').value.trim();
-            const url = document.getElementById('favoriteUrl').value.trim();
-            if (!name || !url) return;
-
-            if (!url.match(/^https?:\/\//i) && !url.match(/^[a-z0-9]+:\/\//i)) {
-                alert('L\'URL doit commencer par http:// ou https://');
-                return;
-            }
-
-            if (currentEdit.fIdx !== null) {
-                data.sections[currentEdit.sIdx].subsections[currentEdit.ssIdx].favorites[currentEdit.fIdx] = { name, url };
+        function saveBookmark() {
+            const name = document.getElementById('bookmarkNameInput').value.trim();
+            const url = document.getElementById('bookmarkUrlInput').value.trim();
+            if (!name || !url) return alert('Veuillez remplir tous les champs');
+            if (currentEditBookmark !== null) {
+                data.sections[currentEditSection].subsections[currentEditSubsection].bookmarks[currentEditBookmark] = { name, url };
             } else {
-                data.sections[currentEdit.sIdx].subsections[currentEdit.ssIdx].favorites.push({ name, url });
+                data.sections[currentEditSection].subsections[currentEditSubsection].bookmarks.push({ name, url });
             }
-
-            await saveData();
-            closeModal('favoriteModal');
+            saveData();
             render();
+            document.getElementById('bookmarkModal').classList.remove('active');
         }
 
-        async function deleteFavorite(sIdx, ssIdx, fIdx) {
-            if (confirm('Supprimer ce favori ?')) {
-                data.sections[sIdx].subsections[ssIdx].favorites.splice(fIdx, 1);
-                await saveData();
-                render();
+        function toggleControls() {
+            controlsVisible = !controlsVisible;
+            if (controlsVisible) {
+                document.body.classList.add('controls-visible');
+                document.getElementById('toggleControlsBtn').textContent = '🙈 Cacher les contrôles';
+            } else {
+                document.body.classList.remove('controls-visible');
+                document.getElementById('toggleControlsBtn').textContent = '👁️ Afficher les contrôles';
             }
         }
 
-        function openFavorite(url) {
-            if (!editMode) {
-                window.open(url, '_blank');
-            }
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDark);
+            document.getElementById('darkModeBtn').textContent = isDark ? '☀️ Mode Clair' : '🌙 Mode Sombre';
         }
 
-        // Modales
-        function openModal(id) {
-            document.getElementById(id).classList.add('active');
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('active');
-        }
-
-        // Recherche
-        function onSearch() {
-            searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            render();
-        }
-
-        function performGoogleSearch() {
-            const query = document.getElementById('googleSearch').value.trim();
-            if (query) {
-                window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
-            }
-        }
-
-        // Export/Import
         function exportData() {
-            const dataStr = JSON.stringify(allData, null, 2);
+            const dataStr = JSON.stringify(data, null, 2);
             const blob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `favoris-tous-utilisateurs-${new Date().toISOString().split('T')[0]}.json`;
+            a.download = `favoris-${new Date().toISOString().split('T')[0]}.json`;
             a.click();
             URL.revokeObjectURL(url);
         }
 
         function importData() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json';
-            input.onchange = async e => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = async e => {
-                    try {
-                        const imported = JSON.parse(e.target.result);
-                        
-                        // Vérifier si c'est le nouveau format avec utilisateurs
-                        if (imported.users) {
-                            allData = imported;
-                            // S'assurer que l'utilisateur actuel existe
-                            if (!allData.users[allData.currentUser]) {
-                                allData.currentUser = Object.keys(allData.users)[0];
-                            }
-                        } else {
-                            // Ancien format - importer dans l'utilisateur actuel
-                            allData.users[allData.currentUser] = imported;
-                        }
-                        
-                        data = allData.users[allData.currentUser];
-                        await saveData();
-                        updateUserSelect();
-                        updateTheme();
+            document.getElementById('importInput').click();
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            searchTerm = e.target.value.trim();
+            render();
+        });
+
+        document.getElementById('addSectionBtn').addEventListener('click', addSection);
+        document.getElementById('toggleControlsBtn').addEventListener('click', toggleControls);
+        document.getElementById('darkModeBtn').addEventListener('click', toggleDarkMode);
+        document.getElementById('exportBtn').addEventListener('click', exportData);
+        document.getElementById('importBtn').addEventListener('click', importData);
+        document.getElementById('saveSectionBtn').addEventListener('click', saveSection);
+        document.getElementById('cancelSectionBtn').addEventListener('click', () => {
+            document.getElementById('sectionModal').classList.remove('active');
+        });
+        document.getElementById('saveSubsectionBtn').addEventListener('click', saveSubsection);
+        document.getElementById('cancelSubsectionBtn').addEventListener('click', () => {
+            document.getElementById('subsectionModal').classList.remove('active');
+        });
+        document.getElementById('saveBookmarkBtn').addEventListener('click', saveBookmark);
+        document.getElementById('cancelBookmarkBtn').addEventListener('click', () => {
+            document.getElementById('bookmarkModal').classList.remove('active');
+        });
+        document.getElementById('importInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const imported = JSON.parse(event.target.result);
+                    if (confirm('Voulez-vous remplacer vos favoris actuels par ceux importés ?')) {
+                        data = imported;
+                        saveData();
                         render();
-                        alert('Données importées !');
-                    } catch (err) {
-                        alert('Fichier invalide');
                     }
-                };
-                reader.readAsText(file);
+                } catch (error) {
+                    alert('Erreur lors de l\'import du fichier');
+                }
             };
-            input.click();
-        }
+            reader.readAsText(file);
+        });
 
-        // Fermer modal en cliquant à l'extérieur
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
-                event.target.classList.remove('active');
-            }
-        };
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) modal.classList.remove('active');
+            });
+        });
 
-        // Drag & Drop
-        let draggedItem = null;
-
-        function handleDragStart(event, type, ...indices) {
-            if (!editMode) {
-                event.preventDefault();
-                return;
-            }
-            
-            draggedItem = { type, indices };
-            event.target.classList.add('dragging');
-            event.dataTransfer.effectAllowed = 'move';
-            event.dataTransfer.setData('text/plain', JSON.stringify(draggedItem));
-            
-            // Important pour Firefox
-            event.stopPropagation();
-        }
-
-        function handleDragEnd(event) {
-            event.target.classList.remove('dragging');
-            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-        }
-
-        function handleDragOver(event) {
-            if (!editMode || !draggedItem) return;
-            
-            event.preventDefault();
-            event.stopPropagation();
-            event.dataTransfer.dropEffect = 'move';
-            
-            const target = event.currentTarget;
-            if (target && !target.classList.contains('dragging')) {
-                // Retirer drag-over de tous les autres éléments
-                document.querySelectorAll('.drag-over').forEach(el => {
-                    if (el !== target) el.classList.remove('drag-over');
-                });
-                target.classList.add('drag-over');
-            }
-        }
-
-        function handleDrop(event, type, ...indices) {
-            if (!editMode || !draggedItem) return;
-            
-            event.preventDefault();
-            event.stopPropagation();
-            
-            event.currentTarget.classList.remove('drag-over');
-            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-
-            // Sections : réorganiser
-            if (draggedItem.type === 'section' && type === 'section') {
-                const fromIdx = draggedItem.indices[0];
-                const toIdx = indices[0];
-                
-                if (fromIdx !== toIdx) {
-                    const [item] = data.sections.splice(fromIdx, 1);
-                    data.sections.splice(toIdx, 0, item);
-                    saveData().then(() => render());
-                }
-            }
-            
-            // Sous-sections : réorganiser dans la même section ou déplacer vers une autre
-            else if (draggedItem.type === 'subsection' && type === 'subsection') {
-                const [fromSIdx, fromSSIdx] = draggedItem.indices;
-                const [toSIdx, toSSIdx] = indices;
-                
-                // Retirer l'élément
-                const [item] = data.sections[fromSIdx].subsections.splice(fromSSIdx, 1);
-                
-                // Si on déplace dans la même section et que l'index de destination est après l'index source
-                // il faut ajuster car on a déjà retiré l'élément
-                if (fromSIdx === toSIdx && toSSIdx > fromSSIdx) {
-                    data.sections[toSIdx].subsections.splice(toSSIdx - 1, 0, item);
-                } else {
-                    data.sections[toSIdx].subsections.splice(toSSIdx, 0, item);
-                }
-                
-                saveData().then(() => render());
-            }
-            
-            // Favoris : réorganiser
-            else if (draggedItem.type === 'favorite' && type === 'favorite') {
-                const [fromSIdx, fromSSIdx, fromFIdx] = draggedItem.indices;
-                const [toSIdx, toSSIdx, toFIdx] = indices;
-                
-                // Seulement si dans la même sous-section
-                if (fromSIdx === toSIdx && fromSSIdx === toSSIdx && fromFIdx !== toFIdx) {
-                    const [item] = data.sections[fromSIdx].subsections[fromSSIdx].favorites.splice(fromFIdx, 1);
-                    
-                    // Ajuster l'index si nécessaire
-                    if (toFIdx > fromFIdx) {
-                        data.sections[toSIdx].subsections[toSSIdx].favorites.splice(toFIdx - 1, 0, item);
-                    } else {
-                        data.sections[toSIdx].subsections[toSSIdx].favorites.splice(toFIdx, 0, item);
-                    }
-                    
-                    saveData().then(() => render());
-                }
-            }
-
-            draggedItem = null;
-        }
-
-        function handleSubsectionGridDragOver(event, sIdx) {
-            if (!editMode || !draggedItem || draggedItem.type !== 'subsection') return;
-            
-            event.preventDefault();
-            event.stopPropagation();
-            event.dataTransfer.dropEffect = 'move';
-            
-            const target = event.currentTarget;
-            target.classList.add('drag-over');
-        }
-
-        function handleSubsectionGridDrop(event, sIdx) {
-            if (!editMode || !draggedItem || draggedItem.type !== 'subsection') return;
-            
-            event.preventDefault();
-            event.stopPropagation();
-            
-            event.currentTarget.classList.remove('drag-over');
-            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-
-            const [fromSIdx, fromSSIdx] = draggedItem.indices;
-            
-            // Ne rien faire si on dépose dans la même section
-            if (fromSIdx === sIdx) {
-                draggedItem = null;
-                return;
-            }
-            
-            // Déplacer la sous-section vers la fin de la section cible
-            const [item] = data.sections[fromSIdx].subsections.splice(fromSSIdx, 1);
-            data.sections[sIdx].subsections.push(item);
-            
-            saveData().then(() => render());
-            draggedItem = null;
-        }
-
-        // Démarrage
-        init();
+        loadData();
     </script>
 </body>
 </html>
