@@ -1,12 +1,9 @@
+version: '3.8'
+
 services:
   bookmarks:
-    build: .
+    image: votre-username/bookmarks-manager:latest
     container_name: bookmarks-manager
     ports:
       - "8080:80"
     restart: unless-stopped
-    environment:
-      - TZ=America/Montreal
-    labels:
-      - "com.bookmarks.description=Gestionnaire de Favoris Web"
-      - "com.bookmarks.version=1.0.0"
