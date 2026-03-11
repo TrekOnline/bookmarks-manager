@@ -1,0 +1,12 @@
+services:
+  bookmarks:
+    build: .
+    container_name: bookmarks-manager
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    environment:
+      - TZ=America/Montreal
+    labels:
+      - "com.bookmarks.description=Gestionnaire de Favoris Web"
+      - "com.bookmarks.version=1.0.0"

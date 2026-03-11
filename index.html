@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestionnaire de Favoris</title>
+    <style>
+        :root {
+            --bg-primary: #f5f7fa;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #e8ecf1;
+            --text-primary: #2c3e50;
+            --text-secondary: #546e7a;
+            --accent-color: #3498db;
+            --border-color: #cbd5e0;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a1f2e;
+            --bg-secondary: #252b3f;
+            --bg-tertiary: #2d3548;
+            --text-primary: #e4e6eb;
+            --text-secondary: #b0b3b8;
+            --accent-color: #4a90e2;
+            --border-color: #3a4152;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            padding-bottom: 80px;
+        }
+
+        .header {
+            background: var(--bg-secondary);
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            text-align: center;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .section {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .section-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            opacity: 0.8;
+        }
+
+        .btn-primary {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .subsections-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .subsection {
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 15px;
+            border: 2px solid var(--border-color);
+        }
+
+        .subsection-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .subsection-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .favorites-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .favorite {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s;
+        }
+
+        .favorite:hover {
+            background: var(--bg-primary);
+            transform: translateX(4px);
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-secondary);
+            border-top: 2px solid var(--border-color);
+            padding: 15px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .footer-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .empty-message {
+            padding: 20px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .dragging {
+            opacity: 0.5;
+            cursor: move;
+        }
+
+        .drag-over {
+            border: 2px dashed var(--accent-color);
+            background: var(--bg-primary);
+        }
+
+        .draggable {
+            cursor: move;
+        }
+
+        .draggable:hover {
+            opacity: 0.9;
+        }
+
+        .hidden { display: none !important; }
+
+        @media (max-width: 768px) {
+            .subsections-grid {
+                grid-template-columns: 1fr;
+            }
+            .search-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📚 Gestionnaire de Favoris</h1>
+        <div style="text-align: center; margin-bottom: 15px;">
+            <label for="userSelect" style="margin-right: 10px; font-weight: 500;">👤 Utilisateur :</label>
+            <select id="userSelect" onchange="switchUser()" style="padding: 8px 12px; border-radius: 6px; border: 2px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); font-size: 1rem; min-width: 200px;">
+            </select>
+            <button class="btn btn-primary" onclick="openAddUserModal()" id="addUserBtn" style="margin-left: 10px; display: none;">➕ Nouvel utilisateur</button>
+        </div>
+        <div class="search-box">
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="🔍 Rechercher dans les favoris..." oninput="onSearch()">
+                <input type="text" id="googleSearch" placeholder="🌐 Recherche Google..." onkeypress="if(event.key==='Enter') performGoogleSearch()">
+                <button class="btn btn-primary" onclick="performGoogleSearch()">Rechercher</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="mainContainer"></div>
+
+    <div class="footer">
+        <div class="footer-buttons" id="footerButtons"></div>
+    </div>
+
+    <!-- Modales -->
+    <div id="sectionModal" class="modal">
+        <div class="modal-content">
+            <h2 id="sectionModalTitle">Nouvelle Section</h2>
+            <div class="form-group">
+                <label>Nom de la section *</label>
+                <input type="text" id="sectionName">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal('sectionModal')">Annuler</button>
+                <button class="btn btn-primary" onclick="saveSection()">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="subsectionModal" class="modal">
+        <div class="modal-content">
+            <h2 id="subsectionModalTitle">Nouvelle Sous-section</h2>
+            <div class="form-group">
+                <label>Nom de la sous-section *</label>
+                <input type="text" id="subsectionName">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal('subsectionModal')">Annuler</button>
+                <button class="btn btn-primary" onclick="saveSubsection()">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="favoriteModal" class="modal">
+        <div class="modal-content">
+            <h2 id="favoriteModalTitle">Nouveau Favori</h2>
+            <div class="form-group">
+                <label>Nom du favori *</label>
+                <input type="text" id="favoriteName">
+            </div>
+            <div class="form-group">
+                <label>URL *</label>
+                <input type="text" id="favoriteUrl" placeholder="https://example.com">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal('favoriteModal')">Annuler</button>
+                <button class="btn btn-primary" onclick="saveFavorite()">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <h2>Nouvel Utilisateur</h2>
+            <div class="form-group">
+                <label>Nom de l'utilisateur *</label>
+                <input type="text" id="userName" placeholder="Ex: Jean">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal('userModal')">Annuler</button>
+                <button class="btn btn-primary" onclick="saveUser()">Créer</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allData = {
+            users: {
+                'Défaut': {
+                    sections: [],
+                    settings: { darkMode: false }
+                }
+            },
+            currentUser: 'Défaut'
+        };
+        let data = { sections: [], settings: { darkMode: false } };
+        let editMode = false;
+        let currentEdit = null;
+        let searchTerm = '';
+
+        // Initialisation
+        async function init() {
+            await loadData();
+            updateUserSelect();
+            updateTheme();
+            renderFooter();
+            render();
+        }
+
+        // API Serveur
+        async function loadData() {
+            try {
+                const response = await fetch('/api/data');
+                const loadedData = await response.json();
+                
+                // Vérifier si c'est l'ancien format ou le nouveau
+                if (loadedData.users) {
+                    allData = loadedData;
+                } else {
+                    // Convertir l'ancien format
+                    allData = {
+                        users: {
+                            'Défaut': loadedData
+                        },
+                        currentUser: 'Défaut'
+                    };
+                }
+                
+                // Charger les données de l'utilisateur actuel
+                data = allData.users[allData.currentUser];
+            } catch (e) {
+                console.error('Erreur chargement:', e);
+            }
+        }
+
+        async function saveData() {
+            try {
+                // Sauvegarder les données de l'utilisateur actuel
+                allData.users[allData.currentUser] = data;
+                
+                await fetch('/api/data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(allData)
+                });
+            } catch (e) {
+                console.error('Erreur sauvegarde:', e);
+            }
+        }
+
+        // Thème
+        function toggleDarkMode() {
+            data.settings.darkMode = !data.settings.darkMode;
+            updateTheme();
+            saveData();
+            renderFooter();
+        }
+
+        function updateTheme() {
+            if (data.settings.darkMode) {
+                document.body.setAttribute('data-theme', 'dark');
+            } else {
+                document.body.removeAttribute('data-theme');
+            }
+        }
+
+        // Mode édition
+        function toggleEditMode() {
+            editMode = !editMode;
+            updateUserSelect();
+            renderFooter();
+            render();
+        }
+
+        // Gestion des utilisateurs
+        function updateUserSelect() {
+            const select = document.getElementById('userSelect');
+            const addBtn = document.getElementById('addUserBtn');
+            
+            // Mettre à jour le dropdown
+            select.innerHTML = '';
+            Object.keys(allData.users).forEach(userName => {
+                const option = document.createElement('option');
+                option.value = userName;
+                option.textContent = userName;
+                option.selected = userName === allData.currentUser;
+                select.appendChild(option);
+            });
+            
+            // Afficher/masquer le bouton d'ajout selon le mode
+            if (editMode) {
+                addBtn.style.display = 'inline-block';
+            } else {
+                addBtn.style.display = 'none';
+            }
+        }
+
+        function switchUser() {
+            const select = document.getElementById('userSelect');
+            const newUser = select.value;
+            
+            if (newUser !== allData.currentUser) {
+                allData.currentUser = newUser;
+                data = allData.users[newUser];
+                updateTheme();
+                render();
+                saveData();
+            }
+        }
+
+        function openAddUserModal() {
+            document.getElementById('userName').value = '';
+            openModal('userModal');
+        }
+
+        async function saveUser() {
+            const name = document.getElementById('userName').value.trim();
+            
+            if (!name) {
+                alert('Veuillez entrer un nom d\'utilisateur');
+                return;
+            }
+            
+            if (allData.users[name]) {
+                alert('Cet utilisateur existe déjà');
+                return;
+            }
+            
+            // Créer le nouvel utilisateur
+            allData.users[name] = {
+                sections: [],
+                settings: { darkMode: false }
+            };
+            
+            // Basculer vers le nouvel utilisateur
+            allData.currentUser = name;
+            data = allData.users[name];
+            
+            await saveData();
+            updateUserSelect();
+            updateTheme();
+            render();
+            closeModal('userModal');
+        }
+
+        // Rendu
+        function render() {
+            const container = document.getElementById('mainContainer');
+            
+            let sections = data.sections;
+            
+            // Filtrer par recherche
+            if (searchTerm) {
+                sections = data.sections.map(section => {
+                    const filteredSubsections = section.subsections.filter(sub => {
+                        return sub.favorites.some(fav => 
+                            fav.name.toLowerCase().includes(searchTerm) ||
+                            fav.url.toLowerCase().includes(searchTerm)
+                        );
+                    });
+                    
+                    if (filteredSubsections.length > 0) {
+                        return { ...section, subsections: filteredSubsections };
+                    }
+                    return null;
+                }).filter(s => s !== null);
+            }
+
+            if (sections.length === 0) {
+                if (searchTerm) {
+                    container.innerHTML = '<div class="empty-message">Aucun résultat trouvé.</div>';
+                } else if (editMode) {
+                    container.innerHTML = '<div class="empty-message">Aucune section. Cliquez sur "➕ Ajouter Section" ci-dessous.</div>';
+                } else {
+                    container.innerHTML = '<div class="empty-message">Aucune donnée. Activez le mode édition pour commencer.</div>';
+                }
+                return;
+            }
+
+            container.innerHTML = sections.map((section, idx) => renderSection(section, idx)).join('');
+        }
+
+        function renderSection(section, sIdx) {
+            const realIdx = data.sections.findIndex(s => s.name === section.name);
+            
+            let controls = '';
+            if (editMode) {
+                controls = `
+                    <div class="section-controls">
+                        <button class="btn btn-primary" onclick="openAddSubsectionModal(${realIdx})">➕ Sous-section</button>
+                        <button class="btn btn-secondary" onclick="openEditSectionModal(${realIdx})">✏️</button>
+                        <button class="btn btn-danger" onclick="deleteSection(${realIdx})">🗑️</button>
+                    </div>
+                `;
+            }
+
+            let subsectionsHtml = '';
+            if (section.subsections && section.subsections.length > 0) {
+                subsectionsHtml = section.subsections.map((sub, ssIdx) => renderSubsection(sub, realIdx, ssIdx)).join('');
+            } else if (editMode) {
+                subsectionsHtml = '<div class="empty-message">Aucune sous-section. Cliquez sur "➕ Sous-section" ci-dessus.</div>';
+            }
+
+            const draggable = editMode ? 'draggable="true" class="draggable"' : '';
+            const dragEvents = editMode ? `
+                ondragstart="handleDragStart(event, 'section', ${realIdx})"
+                ondragend="handleDragEnd(event)"
+                ondragover="handleDragOver(event)"
+                ondrop="handleDrop(event, 'section', ${realIdx})"
+            ` : '';
+
+            return `
+                <div class="section" ${draggable} ${dragEvents} data-type="section" data-index="${realIdx}">
+                    <div class="section-header">
+                        <h2 class="section-title">${section.name}</h2>
+                        ${controls}
+                    </div>
+                    <div class="subsections-grid" 
+                         ondragover="handleSubsectionGridDragOver(event, ${realIdx})"
+                         ondrop="handleSubsectionGridDrop(event, ${realIdx})">
+                        ${subsectionsHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderSubsection(subsection, sIdx, ssIdx) {
+            let controls = '';
+            if (editMode) {
+                controls = `
+                    <div class="section-controls">
+                        <button class="btn btn-primary" onclick="openAddFavoriteModal(${sIdx},${ssIdx})">➕</button>
+                        <button class="btn btn-secondary" onclick="openEditSubsectionModal(${sIdx},${ssIdx})">✏️</button>
+                        <button class="btn btn-danger" onclick="deleteSubsection(${sIdx},${ssIdx})">🗑️</button>
+                    </div>
+                `;
+            }
+
+            let favoritesHtml = '';
+            if (subsection.favorites && subsection.favorites.length > 0) {
+                let favoritesToShow = subsection.favorites;
+                if (searchTerm && !editMode) {
+                    favoritesToShow = subsection.favorites.filter(fav =>
+                        fav.name.toLowerCase().includes(searchTerm) ||
+                        fav.url.toLowerCase().includes(searchTerm)
+                    );
+                }
+                
+                if (favoritesToShow.length > 0) {
+                    favoritesHtml = favoritesToShow.map((fav, fIdx) => {
+                        const realIdx = subsection.favorites.indexOf(fav);
+                        return renderFavorite(fav, sIdx, ssIdx, realIdx);
+                    }).join('');
+                } else if (editMode) {
+                    favoritesHtml = '<div class="empty-message">Aucun favori. Cliquez sur "➕" ci-dessus.</div>';
+                }
+            } else if (editMode) {
+                favoritesHtml = '<div class="empty-message">Aucun favori. Cliquez sur "➕" ci-dessus.</div>';
+            }
+
+            const draggable = editMode ? 'draggable="true" class="draggable"' : '';
+            const dragEvents = editMode ? `
+                ondragstart="handleDragStart(event, 'subsection', ${sIdx}, ${ssIdx})"
+                ondragend="handleDragEnd(event)"
+                ondragover="handleDragOver(event)"
+                ondrop="handleDrop(event, 'subsection', ${sIdx}, ${ssIdx})"
+            ` : '';
+
+            return `
+                <div class="subsection" ${draggable} ${dragEvents} data-type="subsection" data-section="${sIdx}" data-index="${ssIdx}">
+                    <div class="subsection-header">
+                        <h3 class="subsection-title">${subsection.name}</h3>
+                        ${controls}
+                    </div>
+                    <div class="favorites-list">${favoritesHtml}</div>
+                </div>
+            `;
+        }
+
+        function renderFavorite(fav, sIdx, ssIdx, fIdx) {
+            let controls = '';
+            if (editMode) {
+                controls = `
+                    <div class="section-controls">
+                        <button class="btn btn-secondary" onclick="openEditFavoriteModal(${sIdx},${ssIdx},${fIdx});event.stopPropagation()">✏️</button>
+                        <button class="btn btn-danger" onclick="deleteFavorite(${sIdx},${ssIdx},${fIdx});event.stopPropagation()">🗑️</button>
+                    </div>
+                `;
+            }
+
+            const draggable = editMode ? 'draggable="true" class="draggable"' : '';
+            const dragEvents = editMode ? `
+                ondragstart="handleDragStart(event, 'favorite', ${sIdx}, ${ssIdx}, ${fIdx})"
+                ondragend="handleDragEnd(event)"
+                ondragover="handleDragOver(event)"
+                ondrop="handleDrop(event, 'favorite', ${sIdx}, ${ssIdx}, ${fIdx})"
+            ` : '';
+
+            return `
+                <div class="favorite" ${draggable} ${dragEvents} data-type="favorite" data-section="${sIdx}" data-subsection="${ssIdx}" data-index="${fIdx}" onclick="openFavorite('${fav.url}')">
+                    <span>🔖 ${fav.name}</span>
+                    ${controls}
+                </div>
+            `;
+        }
+
+        function renderFooter() {
+            const container = document.getElementById('footerButtons');
+            if (editMode) {
+                container.innerHTML = `
+                    <button class="btn btn-secondary" onclick="toggleEditMode()">👁️ Mode Lecture</button>
+                    <button class="btn btn-primary" onclick="openAddSectionModal()">➕ Ajouter Section</button>
+                    <button class="btn btn-secondary" onclick="toggleDarkMode()">🌓 ${data.settings.darkMode ? 'Clair' : 'Sombre'}</button>
+                    <button class="btn btn-primary" onclick="exportData()">💾 Exporter</button>
+                    <button class="btn btn-primary" onclick="importData()">📂 Importer</button>
+                `;
+            } else {
+                container.innerHTML = `
+                    <button class="btn btn-primary" onclick="toggleEditMode()">✏️ Mode Édition</button>
+                    <button class="btn btn-secondary" onclick="toggleDarkMode()">🌓 ${data.settings.darkMode ? 'Clair' : 'Sombre'}</button>
+                `;
+            }
+        }
+
+        // Sections
+        function openAddSectionModal() {
+            currentEdit = { type: 'section', index: null };
+            document.getElementById('sectionModalTitle').textContent = 'Nouvelle Section';
+            document.getElementById('sectionName').value = '';
+            openModal('sectionModal');
+        }
+
+        function openEditSectionModal(idx) {
+            currentEdit = { type: 'section', index: idx };
+            document.getElementById('sectionModalTitle').textContent = 'Modifier Section';
+            document.getElementById('sectionName').value = data.sections[idx].name;
+            openModal('sectionModal');
+        }
+
+        async function saveSection() {
+            const name = document.getElementById('sectionName').value.trim();
+            if (!name) return;
+
+            if (currentEdit.index !== null) {
+                data.sections[currentEdit.index].name = name;
+            } else {
+                data.sections.push({ name, subsections: [] });
+            }
+
+            await saveData();
+            closeModal('sectionModal');
+            render();
+        }
+
+        async function deleteSection(idx) {
+            if (confirm('Supprimer cette section ?')) {
+                data.sections.splice(idx, 1);
+                await saveData();
+                render();
+            }
+        }
+
+        // Sous-sections
+        function openAddSubsectionModal(sIdx) {
+            currentEdit = { type: 'subsection', sIdx, ssIdx: null };
+            document.getElementById('subsectionModalTitle').textContent = 'Nouvelle Sous-section';
+            document.getElementById('subsectionName').value = '';
+            openModal('subsectionModal');
+        }
+
+        function openEditSubsectionModal(sIdx, ssIdx) {
+            currentEdit = { type: 'subsection', sIdx, ssIdx };
+            document.getElementById('subsectionModalTitle').textContent = 'Modifier Sous-section';
+            document.getElementById('subsectionName').value = data.sections[sIdx].subsections[ssIdx].name;
+            openModal('subsectionModal');
+        }
+
+        async function saveSubsection() {
+            const name = document.getElementById('subsectionName').value.trim();
+            if (!name) return;
+
+            if (currentEdit.ssIdx !== null) {
+                data.sections[currentEdit.sIdx].subsections[currentEdit.ssIdx].name = name;
+            } else {
+                data.sections[currentEdit.sIdx].subsections.push({ name, favorites: [] });
+            }
+
+            await saveData();
+            closeModal('subsectionModal');
+            render();
+        }
+
+        async function deleteSubsection(sIdx, ssIdx) {
+            if (confirm('Supprimer cette sous-section ?')) {
+                data.sections[sIdx].subsections.splice(ssIdx, 1);
+                await saveData();
+                render();
+            }
+        }
+
+        // Favoris
+        function openAddFavoriteModal(sIdx, ssIdx) {
+            currentEdit = { type: 'favorite', sIdx, ssIdx, fIdx: null };
+            document.getElementById('favoriteModalTitle').textContent = 'Nouveau Favori';
+            document.getElementById('favoriteName').value = '';
+            document.getElementById('favoriteUrl').value = '';
+            openModal('favoriteModal');
+        }
+
+        function openEditFavoriteModal(sIdx, ssIdx, fIdx) {
+            currentEdit = { type: 'favorite', sIdx, ssIdx, fIdx };
+            const fav = data.sections[sIdx].subsections[ssIdx].favorites[fIdx];
+            document.getElementById('favoriteModalTitle').textContent = 'Modifier Favori';
+            document.getElementById('favoriteName').value = fav.name;
+            document.getElementById('favoriteUrl').value = fav.url;
+            openModal('favoriteModal');
+        }
+
+        async function saveFavorite() {
+            const name = document.getElementById('favoriteName').value.trim();
+            const url = document.getElementById('favoriteUrl').value.trim();
+            if (!name || !url) return;
+
+            if (!url.match(/^https?:\/\//i) && !url.match(/^[a-z0-9]+:\/\//i)) {
+                alert('L\'URL doit commencer par http:// ou https://');
+                return;
+            }
+
+            if (currentEdit.fIdx !== null) {
+                data.sections[currentEdit.sIdx].subsections[currentEdit.ssIdx].favorites[currentEdit.fIdx] = { name, url };
+            } else {
+                data.sections[currentEdit.sIdx].subsections[currentEdit.ssIdx].favorites.push({ name, url });
+            }
+
+            await saveData();
+            closeModal('favoriteModal');
+            render();
+        }
+
+        async function deleteFavorite(sIdx, ssIdx, fIdx) {
+            if (confirm('Supprimer ce favori ?')) {
+                data.sections[sIdx].subsections[ssIdx].favorites.splice(fIdx, 1);
+                await saveData();
+                render();
+            }
+        }
+
+        function openFavorite(url) {
+            if (!editMode) {
+                window.open(url, '_blank');
+            }
+        }
+
+        // Modales
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        // Recherche
+        function onSearch() {
+            searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            render();
+        }
+
+        function performGoogleSearch() {
+            const query = document.getElementById('googleSearch').value.trim();
+            if (query) {
+                window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
+            }
+        }
+
+        // Export/Import
+        function exportData() {
+            const dataStr = JSON.stringify(allData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `favoris-tous-utilisateurs-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = async e => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = async e => {
+                    try {
+                        const imported = JSON.parse(e.target.result);
+                        
+                        // Vérifier si c'est le nouveau format avec utilisateurs
+                        if (imported.users) {
+                            allData = imported;
+                            // S'assurer que l'utilisateur actuel existe
+                            if (!allData.users[allData.currentUser]) {
+                                allData.currentUser = Object.keys(allData.users)[0];
+                            }
+                        } else {
+                            // Ancien format - importer dans l'utilisateur actuel
+                            allData.users[allData.currentUser] = imported;
+                        }
+                        
+                        data = allData.users[allData.currentUser];
+                        await saveData();
+                        updateUserSelect();
+                        updateTheme();
+                        render();
+                        alert('Données importées !');
+                    } catch (err) {
+                        alert('Fichier invalide');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        // Fermer modal en cliquant à l'extérieur
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+            }
+        };
+
+        // Drag & Drop
+        let draggedItem = null;
+
+        function handleDragStart(event, type, ...indices) {
+            if (!editMode) {
+                event.preventDefault();
+                return;
+            }
+            
+            draggedItem = { type, indices };
+            event.target.classList.add('dragging');
+            event.dataTransfer.effectAllowed = 'move';
+            event.dataTransfer.setData('text/plain', JSON.stringify(draggedItem));
+            
+            // Important pour Firefox
+            event.stopPropagation();
+        }
+
+        function handleDragEnd(event) {
+            event.target.classList.remove('dragging');
+            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+        }
+
+        function handleDragOver(event) {
+            if (!editMode || !draggedItem) return;
+            
+            event.preventDefault();
+            event.stopPropagation();
+            event.dataTransfer.dropEffect = 'move';
+            
+            const target = event.currentTarget;
+            if (target && !target.classList.contains('dragging')) {
+                // Retirer drag-over de tous les autres éléments
+                document.querySelectorAll('.drag-over').forEach(el => {
+                    if (el !== target) el.classList.remove('drag-over');
+                });
+                target.classList.add('drag-over');
+            }
+        }
+
+        function handleDrop(event, type, ...indices) {
+            if (!editMode || !draggedItem) return;
+            
+            event.preventDefault();
+            event.stopPropagation();
+            
+            event.currentTarget.classList.remove('drag-over');
+            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+
+            // Sections : réorganiser
+            if (draggedItem.type === 'section' && type === 'section') {
+                const fromIdx = draggedItem.indices[0];
+                const toIdx = indices[0];
+                
+                if (fromIdx !== toIdx) {
+                    const [item] = data.sections.splice(fromIdx, 1);
+                    data.sections.splice(toIdx, 0, item);
+                    saveData().then(() => render());
+                }
+            }
+            
+            // Sous-sections : réorganiser dans la même section ou déplacer vers une autre
+            else if (draggedItem.type === 'subsection' && type === 'subsection') {
+                const [fromSIdx, fromSSIdx] = draggedItem.indices;
+                const [toSIdx, toSSIdx] = indices;
+                
+                // Retirer l'élément
+                const [item] = data.sections[fromSIdx].subsections.splice(fromSSIdx, 1);
+                
+                // Si on déplace dans la même section et que l'index de destination est après l'index source
+                // il faut ajuster car on a déjà retiré l'élément
+                if (fromSIdx === toSIdx && toSSIdx > fromSSIdx) {
+                    data.sections[toSIdx].subsections.splice(toSSIdx - 1, 0, item);
+                } else {
+                    data.sections[toSIdx].subsections.splice(toSSIdx, 0, item);
+                }
+                
+                saveData().then(() => render());
+            }
+            
+            // Favoris : réorganiser
+            else if (draggedItem.type === 'favorite' && type === 'favorite') {
+                const [fromSIdx, fromSSIdx, fromFIdx] = draggedItem.indices;
+                const [toSIdx, toSSIdx, toFIdx] = indices;
+                
+                // Seulement si dans la même sous-section
+                if (fromSIdx === toSIdx && fromSSIdx === toSSIdx && fromFIdx !== toFIdx) {
+                    const [item] = data.sections[fromSIdx].subsections[fromSSIdx].favorites.splice(fromFIdx, 1);
+                    
+                    // Ajuster l'index si nécessaire
+                    if (toFIdx > fromFIdx) {
+                        data.sections[toSIdx].subsections[toSSIdx].favorites.splice(toFIdx - 1, 0, item);
+                    } else {
+                        data.sections[toSIdx].subsections[toSSIdx].favorites.splice(toFIdx, 0, item);
+                    }
+                    
+                    saveData().then(() => render());
+                }
+            }
+
+            draggedItem = null;
+        }
+
+        function handleSubsectionGridDragOver(event, sIdx) {
+            if (!editMode || !draggedItem || draggedItem.type !== 'subsection') return;
+            
+            event.preventDefault();
+            event.stopPropagation();
+            event.dataTransfer.dropEffect = 'move';
+            
+            const target = event.currentTarget;
+            target.classList.add('drag-over');
+        }
+
+        function handleSubsectionGridDrop(event, sIdx) {
+            if (!editMode || !draggedItem || draggedItem.type !== 'subsection') return;
+            
+            event.preventDefault();
+            event.stopPropagation();
+            
+            event.currentTarget.classList.remove('drag-over');
+            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+
+            const [fromSIdx, fromSSIdx] = draggedItem.indices;
+            
+            // Ne rien faire si on dépose dans la même section
+            if (fromSIdx === sIdx) {
+                draggedItem = null;
+                return;
+            }
+            
+            // Déplacer la sous-section vers la fin de la section cible
+            const [item] = data.sections[fromSIdx].subsections.splice(fromSSIdx, 1);
+            data.sections[sIdx].subsections.push(item);
+            
+            saveData().then(() => render());
+            draggedItem = null;
+        }
+
+        // Démarrage
+        init();
+    </script>
+</body>
+</html>
